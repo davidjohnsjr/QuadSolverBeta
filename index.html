@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>David's Cool Quad Grapher and Solver</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<style type="text/css">
+	html, body {
+		margin: 0px;
+	}
+	canvas {
+		display: block;
+	}
+	/*David's cool css file for the soft dev class 2016 winter*/
+
+#wrapper {
+	width: 1200px;
+	margin:auto;
+	background-color: rgb(255,255,0);
+}
+
+header {
+	width: 1000px;
+	box-shadow: 10px 10px 10px black;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: green;
+	text-align: center;
+	color: white;
+}
+
+#mycanvas {
+	margin-left: 400px;
+	border-style: dotted;
+	border-width: 20px;
+	background-color: lightblue;
+}
+
+#coeff {
+	margin-top: 40px;
+	float: left;
+	width: 300px;
+	position: absolute;
+	background-color: rgb(200,200,200);
+	padding: 10px;
+	border-radius: 20px;
+	margin-left: auto;
+	margin-right: auto;
+
+}
+
+#answers {
+	margin-left: 5%;
+	margin-top: 200px;
+	float: left;
+	width: 300px;
+	background-color: rgb(200,200,200);
+	position: absolute;
+	padding: 10px;
+}
+
+.mycenter {
+	margin-right: auto;
+	margin-left: auto;
+	width: 200px;
+}
+	</style>
+</head>
+<body onload="init()">
+	<div id="wrapper">
+		<header>A good title for this</header>
+		<div id="coeff">
+			<p class="formInfo">Coefficients go here<br>
+
+				a = <input size="10" type="text" id="quadA" value="1"> <br>
+				b = <input size="10" type="text" id="linB" value="0"> <br>
+				c = <input size="10" type="text" id="constant" value="0"> <br>
+				<button onclick="QF()">Submit Values</button>
+			</p>
+		</div>
+		<div id="answers">
+			<div class="vertex"></div>
+			<div id="discriminant"></div>
+			<div id="solution1"></div>
+			<div id="solution2"></div>
+			<div class="mycenter">
+				<button onclick="plotYint()">Plot Y-Intercept</button>
+				<button onclick="plotXint()">Plot X-Intercept(s)</button>
+				<button onclick="newGraph()">New Graph</button>
+				<button onclick="zoomIN()">Zoom In</button>
+				<button onclick="zoomOut()">Zoom Out</button>
+				x = <input size="5" type="text" id="xval" value="0">
+				<button onclick="eval()">Eval the x-value</button>
+				<div id="yval"></div>
+			</div>
+		</div>
+		<canvas id="mycanvas"></canvas>
+	</div><!--close wrapper-->
+
+
+
+<script type="text/javascript">
+	//Javascript for drawing and calculating quadratics
+var a,b,c,context, w, h, k=10, xv;
+
+function QF() {
+// getting values to do quadratic formula
+a = $("#quadA").val();
+b = $("#linB").val();
+c = $("#constant").val();
+solutions();
+graphQuad();
+results();
+}
+
+function init() {
+	canvas= document.getElementById("mycanvas");
+	context = canvas.getContext("2d");
+	w = canvas.width = 600;
+	h = canvas.height = 400;
+	$("#answers").hide();
+	grid();
+}
+
+// plotting a circle on the y intercept
+function plotYint() {
+	context.beginPath();
+	context.fillStyle = "Green";
+	context.arc(w/2,h/2-c*k,4,0,2*Math.PI);
+	context.fill();
+}
+function plotXint() {
+	context.fillStyle = "Blue";
+	context.beginPath();
+	context.arc(w/2+x1*k,h/2,4,0,2*Math.PI);
+	context.fill();
+	context.beginPath();
+	context.arc(w/2+x2*k,h/2,4,0,2*Math.PI);
+	context.fill();
+}
+
+function graphQuad () {
+for (var i = 0; i < w; i++) {
+x = (w/2-i)/k;
+y = c*1+b*x+a*Math.pow(x,2);
+nx =(w/2-(i+1))/k;
+ny = c*1+b*nx+a*Math.pow(nx,2);
+context.beginPath();
+context.lineWidth = 2;
+context.strokeStyle = "Red";
+context.moveTo(w/2+x*k, h/2-y*k);
+context.lineTo(w/2+nx*k, h/2-ny*k);
+context.stroke();
+};
+};
+
+function results() {
+// finding vertext and displaying symline and yint results
+vX = -(b*1)/(2*a);
+vY = a*Math.pow(vX,2)+b*vX+c*1;
+yint = c;
+$(".vertex").text("Vertex is at (" + vX+","+vY+")");
+}
+
+function eval() {
+// finding vertext and displaying symline and yint results
+xv = $("#xval").val();
+yv = a*Math.pow(xv,2)+b*xv+c*1;
+$("#yval").text("(" + xv +","+yv+")");
+}
+
+function solutions() {
+// qudratic formula
+$("#answers").hide();
+$("#answers").fadeIn(1500);
+d = Math.pow(b*1,2)-4*a*c;
+if (d<0) {
+	$("#solution1").text("The solutions are imaginary (no x-intercepts).");
+}
+else {
+	x1 = -(b*1)/(2*a)+Math.sqrt(d)/(2*a);
+	x2 = -(b*1)/(2*a)-Math.sqrt(d)/(2*a);
+	$("#solution1").text("x = " + x1);
+	$("#solution2").text("x = " + x2);
+}
+
+}
+
+function grid() {
+//using the direct variation constant k, we make a grid.
+context.lineWidth=1;
+context.strokeStyle="rgba(0,0,0,.4)";
+for (var i=0; i<w/(2*k); i++ ) {
+	context.beginPath();
+	context.moveTo(w/2+k*(i+1),0);
+	context.lineTo(w/2+k*(i+1),h);
+	context.stroke();
+	context.beginPath();
+	context.moveTo(w/2-k*(i+1),0);
+	context.lineTo(w/2-k*(i+1),h);
+	context.stroke();
+}  //close for
+
+for (var i=0; i<h/(2*k); i++) {
+	context.beginPath();
+	context.moveTo(0,h/2-k*(i+1));
+	context.lineTo(w,h/2-k*(i+1));
+	context.stroke();
+	context.beginPath();
+	context.moveTo(0,h/2+k*(i+1));
+	context.lineTo(w,h/2+k*(i+1));
+	context.stroke();
+}  //close for
+
+// x and y axis
+context.lineWidth=3;
+context.strokeStyle="rgba(0,0,0,.9)";
+
+// now draw the axis yourself
+context.beginPath();
+context.moveTo(0,h/2);
+context.lineTo(w,h/2);
+context.stroke();
+context.beginPath();
+context.moveTo(w/2,0);
+context.lineTo(w/2,h);
+context.stroke();
+}  //closing the grid()
+
+function newGraph() {
+	// clearing canvas and answers and drawing grid
+	context.clearRect(0,0,w,h);
+	$("#answers").hide();
+	grid();
+}
+
+function zoomIN () {
+	// zooming in with bigger k, mind the ks and ws and hs
+	context.clearRect(0,0,w,h);
+	k+=5;
+	grid();
+	graphQuad();
+}
+
+function zoomOut() {
+	// zooming in with bigger k, mind the ks and ws and hs
+	context.clearRect(0,0,w,h);
+	k-=5;
+	if (k<=0){k=5}
+	grid();
+	graphQuad();
+}
+
+
+
+
+</script>
+</body>
+</html>
